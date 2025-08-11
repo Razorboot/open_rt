@@ -1,5 +1,5 @@
 --# INCLUDE
-local Object = require(script.Parent:FindFirstChild("Object"))
+local ObjectTypes = require(script.Parent:FindFirstChild("ObjectTypes"))
 local MaterialsContext = require(script.Parent:FindFirstChild("MaterialsContext"))
 
 
@@ -10,24 +10,30 @@ local MaterialsContext = require(script.Parent:FindFirstChild("MaterialsContext"
 	@class Core
 	@tag Singleton
 ]=]
-local Core = Object:extend()
+local Core = {}
+Core.__index = Core
 
 
 --# CONSTRUCTOR/DESTRUCTOR
 --- Creates a new OpenRT Core instance.
 --- @tag Constructor
-function Core:new()
-	self.RenderingContext = nil -- The RenderingContext instance
-	self.LightingContext = nil -- The LightingContext instance
-	self.MaterialsContext = nil -- The MaterialsContext instance
+function Core:new(): any
+	local newCore = setmetatable({
+		RenderingContext = nil,
+		LightingContext = nil,
+		MaterialsContext = nil
+	}, Core)
+	return newCore
 end
 
 --- Destroys an existing OpenRT Core instance and all attached metadata and instances.
 --- @tag Destructor
-function Core:destroy()
+function Core:destroy(): nil
 	self.RenderingContext = nil -- The RenderingContext instance
 	self.LightingContext = nil -- The LightingContext instance
 	self.MaterialsContext = nil -- The MaterialsContext instance
+	setmetatable(self, nil)
+	return nil
 end
 
 
