@@ -21,11 +21,11 @@ Material.__index = Material
 --# CONSTRUCTOR/DESTRUCTOR
 --- Creates a new MaterialsContext instance.
 --- @tag Constructor
-function MaterialsContext:new()
-    local newMaterialsContext: MaterialsContextT = {
-        Materials = {} :: {[string]: MaterialT},    -- A new material
-        TextureRegistry = {} :: TextureRegistryT    -- Assuming Texture is defined elsewhere
-    }
+function MaterialsContext:new(): any
+	local newMaterialsContext = {
+		Materials = {} :: {[string]: MaterialT},
+		TextureRegistry = {} :: TextureRegistryT
+	}
 	setmetatable(newMaterialsContext, MaterialsContext)
 	return newMaterialsContext
 end
