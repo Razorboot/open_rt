@@ -1,7 +1,10 @@
 --!strict
 
 --# INCLUDE
-require(script.Parent.ObjectTypes)
+local ObjectTypes = require(script.Parent.ObjectTypes)
+type MaterialT = ObjectTypes.Material
+type MaterialsContextT = ObjectTypes.MaterialsContext
+type TextureRegistryT = ObjectTypes.TextureRegistry
 
 
 --# DEFINITION
@@ -11,6 +14,9 @@ require(script.Parent.ObjectTypes)
 local MaterialsContext = {}
 MaterialsContext.__index = MaterialsContext
 
+local Material = {}
+Material.__index = Material
+
 
 --# CONSTRUCTOR/DESTRUCTOR
 --- Creates a new MaterialsContext instance.
@@ -18,7 +24,7 @@ MaterialsContext.__index = MaterialsContext
 function MaterialsContext:new()
     local newMaterialsContext: MaterialsContextT = {
         Materials = {} :: {[string]: MaterialT},    -- A new material
-        TextureRegistry = {} :: {[string]: Texture} -- Assuming Texture is defined elsewhere
+        TextureRegistry = {} :: TextureRegistryT    -- Assuming Texture is defined elsewhere
     }
 	setmetatable(newMaterialsContext, MaterialsContext)
 	return newMaterialsContext
@@ -35,6 +41,18 @@ end
 
 --# SETTERS
 --- Sets or adds a new material to an existing MaterialsContext instance.
+function MaterialsContext:newMaterial(name: string, albedo: Color3, normal: Vector3, specular: number)
+	local newMaterial: MaterialT = {
+		Name = name,
+		Albedo = albedo,
+		Normal = normal,
+		Specular = specular
+	}
+	setmetatable(newMaterial, Material)
+	self.Materials[name] = newMaterial
+	return newMaterial
+end
+
 function MaterialsContext:setMaterial(name: string, material: MaterialT): nil
 	self.Materials[name] = material
 	return nil
