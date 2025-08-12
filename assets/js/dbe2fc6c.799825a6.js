@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[764],{4410:s=>{s.exports=JSON.parse('{"sourceUrl":"https://github.com/Razorboot/open_rt/blob/main","baseUrl":"/open_rt/","classOrder":[],"apiCategories":[]}')}}]);
