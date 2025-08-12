@@ -19,10 +19,6 @@ For more help, check out [the Rojo documentation](https://rojo.space/docs).
 
 ---
 
-![radiosity_engine_thumbnail (2)](https://github.com/user-attachments/assets/799b9deb-e56b-40b9-852b-b8c26359568b)
-
----
-
 > # Video Showcase of TraceLib:
 
 ---
