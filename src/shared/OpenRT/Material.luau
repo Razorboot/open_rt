@@ -24,9 +24,30 @@ local DEFAULT_MATERIAL_SIZE: Vector2 = ObjectTypes.DEFAULT_MATERIAL_SIZE
 
 --# INIT MATERIAL
 
---- The Material class represents a material with albedo, normal, and specular properties.
---- @class Material
---- @tag Class
+--[=[
+	The Material class represents a material with albedo, normal, and specular maps and properties.
+	Materials are a great way to add more detail and realism to surfaces with the realtime simulation of diffuse, normal, and specular lighting.
+	
+	Each Material Instance contains...
+
+	The name of the Material:
+	- Name: String
+
+	The uniform size applied to all texture channels:
+	- Size: Vector2
+
+	The MaterialsContext the Material belongs to:
+	- ParentContext: MaterialsContext
+
+	The texture channels that contain an array of TextureRegistryIds. These get used to index EditableImages from the ParentContext.TextureRegistry.
+	- AlbedoMapIds: {TextureRegistryId}
+	- NormalMapIds: {TextureRegistryId}
+	- SpecularMapIds: {TextureRegistryId}
+
+	@class Material
+	@tag Class
+]=]
+--- 
 local Material = {}
 Material.__index = Material
 
@@ -38,7 +59,7 @@ Material.__index = Material
 --- @tag Constructor
 --- @method Material.new
 --- @param name string -- The name of the material
---- @return {Name = name, AlbedoMapIds = nil :: array<number>?, NormalMapIds = nil :: array<number>?, SpecularMapIds = nil :: array<number>?, ParentContext = nil :: MaterialsContextT?}
+--- @return Material
 function Material.new(name: string): MaterialT
 	local newMaterial = {
 		Name = name,
@@ -66,7 +87,7 @@ function Material:destroy(): nil
 	self.NormalMapIds = nil
 	self.SpecularMapIds = nil
 	setmetatable(self, nil)
-	
+
 	return nil
 end
 

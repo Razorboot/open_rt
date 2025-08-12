@@ -51,7 +51,7 @@ end
 --- Creates a new Material instance and adds it to the MaterialsContext.
 --- @within MaterialsContext
 --- @method MaterialsContext:addMaterial
---- @param MaterialInstance MaterialT -- The material instance to add
+--- @param MaterialInstance Material -- The material instance to add
 --- @tag Mutator
 --- @return nil
 function MaterialsContext:addMaterial(MaterialInstance: MaterialT): nil
@@ -65,7 +65,7 @@ end
 --- Removes an existing Material instance from the MaterialsContext instance.
 --- @within MaterialsContext
 --- @method MaterialsContext:removeMaterial
---- @param identifier: (string | MaterialT) -- The name of the material to remove. This will not delete the material instance.
+--- @param identifier: (string | Material) -- The name of the material to remove. This will not delete the material instance.
 --- @tag Mutator
 --- @return nil
 function MaterialsContext:removeMaterial(identifier: (string | MaterialT)): nil
