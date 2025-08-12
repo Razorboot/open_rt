@@ -2,10 +2,8 @@
 
 --# INCLUDE
 local ObjectTypes = require(script.Parent.ObjectTypes)
-local Material = require(script.Parent.Material)
 type MaterialT = ObjectTypes.Material
 type MaterialsContextT = ObjectTypes.MaterialsContext
-type TextureRegistryT = ObjectTypes.TextureRegistry
 
 
 --# DEFINITION
@@ -17,43 +15,67 @@ MaterialsContext.__index = MaterialsContext
 
 
 --- Creates a new MaterialsContext instance.
+--- @within MaterialsContext
 --- @tag Constructor
-function MaterialsContext:new(): any
+--- @method MaterialsContext.new
+--- @return MaterialsContext
+function MaterialsContext.new(): MaterialsContextT
 	local newMaterialsContext = {
 		Materials = {} :: {[string]: MaterialT},
-		TextureRegistry = {} :: TextureRegistryT
+		TextureRegistry = {} :: {[string]: EditableImage}
 	}
-	setmetatable(newMaterialsContext, MaterialsContext)
-	return newMaterialsContext
+	return setmetatable(newMaterialsContext, MaterialsContext)
 end
 
 --- Destroys an existing MaterialsContext instance and all associated metadata.
 --- @within MaterialsContext
---- @method MaterialsContext:destroy()
+--- @method MaterialsContext:destroy
+--- @tag Destructor
 --- @return nil
 function MaterialsContext:destroy(): nil
 	self.Materials = nil
+
+	-- clear the texture registry
+	for _, editableImage: EditableImage in pairs(self.TextureRegistry) do
+		editableImage:Destroy()
+	end
 	self.TextureRegistry = nil
+
+	setmetatable(self, nil)
 	return nil
 end
 
 
---# MATERIAL CONSTRUCTOR/DESTRUCTOR
+--# MATERIAL MANAGEMENT
 
 --- Creates a new Material instance and adds it to the MaterialsContext.
 --- @within MaterialsContext
 --- @method MaterialsContext:addMaterial
 --- @param MaterialInstance MaterialT -- The material instance to add
+--- @tag Mutator
 --- @return nil
 function MaterialsContext:addMaterial(MaterialInstance: MaterialT): nil
+	MaterialInstance.ParentContext = self
 	self.Materials[MaterialInstance.Name] = MaterialInstance
 	return nil
 end
 
---- Destroys an existing Material instance in an existing MaterialsContext instance.
---- @tag Destructor
-function MaterialsContext:removeMaterial(name: string): nil
-	self.Materials[name] = nil
+--- 
+
+--- Removes an existing Material instance from the MaterialsContext instance.
+--- @within MaterialsContext
+--- @method MaterialsContext:removeMaterial
+--- @param identifier: (string | MaterialT) -- The name of the material to remove. This will not delete the material instance.
+--- @tag Mutator
+--- @return nil
+function MaterialsContext:removeMaterial(identifier: (string | MaterialT)): nil
+	if typeof(identifier) == "string" then
+		self.Materials[identifier].ParentContext = nil
+		self.Materials[identifier] = nil
+	else
+		self.Materials[identifier.Name].ParentContext = nil
+		self.Materials[identifier.Name] = nil
+	end
 	return nil
 end
 

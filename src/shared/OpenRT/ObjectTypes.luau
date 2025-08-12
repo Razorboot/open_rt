@@ -1,23 +1,23 @@
 --!strict
+
+--# POINT
+local ObjectTypes = {}
+
+
+--# TYPES
 -- Types-only module (returns nil at runtime). Safe to `require` in type expressions.
 export type textureChannel = "Albedo" | "Normal" | "Specular"
-
-export type Material = {
-	-- Flesh out as needed
-	Name: string,
-	AlbedoMapIndices: {number}?,
-	NormalMapIndices: {number}?,
-	SpecularMapIndices: {number}?
-}
-
 export type TextureRegistry = {
     [number]: buffer
 }
 
-export type MaterialsContext = {
-	-- state
-	Materials: {[string]: Material},
-    TextureRegistry: TextureRegistry
-}
+export type Material = any
+export type MaterialsContext = any
 
-return nil
+
+--# CONSTANTS
+ObjectTypes.DEFAULT_MATERIAL_SIZE = Vector2.new(64, 64)
+
+
+--# FINALIZE
+return ObjectTypes

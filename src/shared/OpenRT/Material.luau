@@ -1,12 +1,25 @@
 
 --!strict
 
+--# SERVICES
+local AssetService = game:GetService("AssetService")
+
+
 --# INCLUDE
-local ObjectTypes = require(script.Parent.ObjectTypes)
-type MaterialT = ObjectTypes.Material
+local CompileHelper = require(script.Parent:FindFirstChild("CompileHelper"))
+local ObjectTypes = require(script.Parent:FindFirstChild("ObjectTypes"))
+local CompiledTypes = require(script.Parent:FindFirstChild("CompiledTypes"))
+
 
 --# IMPORT TYPES
+type array<T> = CompiledTypes.array<T>
+type MaterialsContextT = ObjectTypes.MaterialsContext
+type MaterialT = ObjectTypes.Material
 type TextureChannel = ObjectTypes.textureChannel
+
+
+--# IMPORTED CONSTANTS
+local DEFAULT_MATERIAL_SIZE: Vector2 = ObjectTypes.DEFAULT_MATERIAL_SIZE
 
 
 --# INIT MATERIAL
@@ -25,30 +38,53 @@ Material.__index = Material
 --- @tag Constructor
 --- @method Material.new
 --- @param name string -- The name of the material
---- @return Material -- The created Material instance
-function Material.new(name: string): any
-	local newMaterial: MaterialT = {
+--- @return {Name = name, AlbedoMapIds = nil :: array<number>?, NormalMapIds = nil :: array<number>?, SpecularMapIds = nil :: array<number>?, ParentContext = nil :: MaterialsContextT?}
+function Material.new(name: string): MaterialT
+	local newMaterial = {
 		Name = name,
-		AlbedoMapIds = nil,
-		NormalMapIds = nil,
-		SpecularMapIds = nil
+		Size = DEFAULT_MATERIAL_SIZE :: Vector2,
+		AlbedoMapIds = nil :: array<number>?,
+		NormalMapIds = nil :: array<number>?,
+		SpecularMapIds = nil :: array<number>?,
+		ParentContext = nil :: MaterialsContextT?
 	}
-	setmetatable(newMaterial, Material)
-	return newMaterial
+	return setmetatable(newMaterial, Material)
 end
 
---- Destroys a Material instance.
+--- Destroys a Material instance and detaches it from the parent context.
+--- @within Material
 --- @tag Destructor
+--- @method Material:destroy
+--- @return nil
 function Material:destroy(): nil
+	if self.ParentContext then
+		self.ParentContext:removeMaterial(self.Name)
+	end
+
 	self.Name = nil
 	self.AlbedoMapIds = nil
 	self.NormalMapIds = nil
 	self.SpecularMapIds = nil
+	setmetatable(self, nil)
+	
 	return nil
 end
 
 
 --# SETTERS
+
+--- Sets the shared dimensions between all texture channels.
+--- @within Material
+--- @method Material:setSize
+--- @param size Vector2 -- The new size to set
+--- @tag Setter
+--- @return nil
+function Material:setSize(size: Vector2): nil
+	assert(size.X > 0 and size.Y > 0 and size.X < 513 and size.Y < 513, "ERROR [Material:setSize] <size> must be a Vector2 between (0, 0) and (512, 512)")
+	self.Size = size
+	return nil
+end
+
 --- Sets the texture map id of a subtexture in a texture channel.
 --- @within Material
 --- @method Material:setTextureId
@@ -59,6 +95,9 @@ end
 --- @return nil
 function Material:setTextureId(textureId: string, channel: TextureChannel, subtextureIndex: number): nil
     assert(type(channel) == "string", "ERROR [Material:setTextureId] <channel> must be a string")
+	
+	local AlbedoMap: EditableImage = AssetService:CreateEditableImage({Size = self.Size})
+	
 	if channel == "Albedo" then
 		self.AlbedoMapIds[subtextureIndex] = textureId
 	elseif channel == "Normal" then
@@ -67,6 +106,19 @@ function Material:setTextureId(textureId: string, channel: TextureChannel, subte
 		self.SpecularMapIds[subtextureIndex] = textureId
 	end
 	return nil
+end
+
+
+--# GETTERS
+
+--- Sets the shared dimensions between all texture channels.
+--- @within Material
+--- @method Material:getSize
+--- @param size Vector2 -- The new size to set
+--- @tag Getter
+--- @return Vector2
+function Material:getSize(): Vector2
+	return self.Size
 end
 
 --# FINALIZE
