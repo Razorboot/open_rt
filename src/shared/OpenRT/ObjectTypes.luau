@@ -11,12 +11,13 @@ export type TextureRegistry = {
     [number]: buffer
 }
 
+export type Texture = any
 export type Material = any
 export type MaterialsContext = any
 
 
 --# CONSTANTS
-ObjectTypes.DEFAULT_MATERIAL_SIZE = Vector2.new(64, 64)
+ObjectTypes.DEFAULT_TEXTURE_SIZE = Vector2.new(64, 64)
 
 
 --# FINALIZE

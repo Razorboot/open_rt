@@ -17,7 +17,6 @@ MaterialsContext.__index = MaterialsContext
 --- Creates a new MaterialsContext instance.
 --- @within MaterialsContext
 --- @tag Constructor
---- @method MaterialsContext.new
 --- @return MaterialsContext
 function MaterialsContext.new(): MaterialsContextT
 	local newMaterialsContext = {
@@ -29,7 +28,6 @@ end
 
 --- Destroys an existing MaterialsContext instance and all associated metadata.
 --- @within MaterialsContext
---- @method MaterialsContext:destroy
 --- @tag Destructor
 --- @return nil
 function MaterialsContext:destroy(): nil
@@ -50,7 +48,7 @@ end
 
 --- Creates a new Material instance and adds it to the MaterialsContext.
 --- @within MaterialsContext
---- @method MaterialsContext:addMaterial
+--- @method addMaterial
 --- @param MaterialInstance Material -- The material instance to add
 --- @tag Mutator
 --- @return nil
@@ -64,7 +62,7 @@ end
 
 --- Removes an existing Material instance from the MaterialsContext instance.
 --- @within MaterialsContext
---- @method MaterialsContext:removeMaterial
+--- @method removeMaterial
 --- @param identifier: (string | Material) -- The name of the material to remove. This will not delete the material instance.
 --- @tag Mutator
 --- @return nil

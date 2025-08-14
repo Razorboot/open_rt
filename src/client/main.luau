@@ -3,6 +3,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 --# Include
 local OpenRT = ReplicatedStorage:WaitForChild("OpenRT")
-local MaterialManager = require(OpenRT:WaitForChild("MaterialManager"))
+local MaterialsContext = require(OpenRT:WaitForChild("MaterialsContext"))
 
 --# Init OpenRT

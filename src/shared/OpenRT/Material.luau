@@ -1,4 +1,3 @@
-
 --!strict
 
 --# SERVICES
@@ -19,7 +18,7 @@ type TextureChannel = ObjectTypes.textureChannel
 
 
 --# IMPORTED CONSTANTS
-local DEFAULT_MATERIAL_SIZE: Vector2 = ObjectTypes.DEFAULT_MATERIAL_SIZE
+local DEFAULT_MATERIAL_SIZE: Vector2 = ObjectTypes.DEFAULT_TEXTURE_SIZE
 
 
 --# INIT MATERIAL
@@ -57,10 +56,9 @@ Material.__index = Material
 --- Creates a new Material instance.
 --- @within Material
 --- @tag Constructor
---- @method Material.new
 --- @param name string -- The name of the material
 --- @return Material
-function Material.new(name: string): MaterialT
+function Material.new(name: string): any
 	local newMaterial = {
 		Name = name,
 		Size = DEFAULT_MATERIAL_SIZE :: Vector2,
@@ -75,7 +73,6 @@ end
 --- Destroys a Material instance and detaches it from the parent context.
 --- @within Material
 --- @tag Destructor
---- @method Material:destroy
 --- @return nil
 function Material:destroy(): nil
 	if self.ParentContext then
@@ -96,7 +93,6 @@ end
 
 --- Sets the shared dimensions between all texture channels.
 --- @within Material
---- @method Material:setSize
 --- @param size Vector2 -- The new size to set
 --- @tag Setter
 --- @return nil
@@ -108,23 +104,22 @@ end
 
 --- Sets the texture map id of a subtexture in a texture channel.
 --- @within Material
---- @method Material:setTextureId
 --- @param textureId string -- The texture ID to set
 --- @param channel TextureChannel -- The texture channel ("Albedo", "Normal", "Specular")
---- @param subtextureIndex number -- The index of the subtexture
+--- @param subTextureIndex number -- The index of the subtexture
 --- @tag Setter
 --- @return nil
-function Material:setTextureId(textureId: string, channel: TextureChannel, subtextureIndex: number): nil
+function Material:setTextureId(textureId: string, channel: TextureChannel, subTextureIndex: number): nil
     assert(type(channel) == "string", "ERROR [Material:setTextureId] <channel> must be a string")
 	
 	local AlbedoMap: EditableImage = AssetService:CreateEditableImage({Size = self.Size})
 	
 	if channel == "Albedo" then
-		self.AlbedoMapIds[subtextureIndex] = textureId
+		self.AlbedoMapIds[subTextureIndex] = textureId
 	elseif channel == "Normal" then
-		self.NormalMapIds[subtextureIndex] = textureId
+		self.NormalMapIds[subTextureIndex] = textureId
 	elseif channel == "Specular" then
-		self.SpecularMapIds[subtextureIndex] = textureId
+		self.SpecularMapIds[subTextureIndex] = textureId
 	end
 	return nil
 end
@@ -134,8 +129,6 @@ end
 
 --- Sets the shared dimensions between all texture channels.
 --- @within Material
---- @method Material:getSize
---- @param size Vector2 -- The new size to set
 --- @tag Getter
 --- @return Vector2
 function Material:getSize(): Vector2
