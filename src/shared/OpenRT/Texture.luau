@@ -74,9 +74,10 @@ end
 --- @tag Destructor
 --- @return nil
 function Texture:destroy(): nil
-	if self.Image then 
-		self.Image:Destroy() 
+	if self.Image then
+		self.Image:Destroy()
 	end
+	setmetatable(self, nil)
 	return nil
 end
 
@@ -90,6 +91,7 @@ end
 --- @param Context: MaterialsContext -- The context the Texture is stored in
 --- @return nil
 function Texture:setParentContext(Context: any): nil
+	assert(Context, string.format("ERROR [Texture:setParentContext] <Context> is of type <%s> must be a <MaterialsContext>", typeof(Context)))
 	self.ParentContext = Context
 	return nil
 end
@@ -102,21 +104,21 @@ end
 --- @return nil
 function Texture:setSize(size: Vector2): nil
 	self.Size = size
-	if self.Image then  
-		self.Image = AssetService:CreateEditableImageAsync(self.Content, size)
+	if self.Image then
 		self.Image:Destroy()
 	end
+	self.Image = AssetService:CreateEditableImageAsync(self.Content, size)
+	self:compile()
 	return nil
 end
 
---- Creates and assigns a new Image to the Texture
+--- Creates an EditableImage from an asset ID and assigns it to the Texture
 --- @within Texture
 --- @tag Setter
 --- @param imageId -- The image id used to create the Image
 --- @return nil
 function Texture:setImageId(imageId: string): nil
-	self.Content = Content.fromUri(imageId)
-	self.Image = AssetService:CreateEditableImageAsync(self.Content, self.Size)
+	self:setContent(Content.fromUri(imageId))
 	return nil
 end
 
@@ -129,9 +131,9 @@ function Texture:setContent(imageContent: Content): nil
 	assert(imageContent.SourceType == Enum.ContentSourceType.Uri, "ERROR [Texture:setContent] <imageContent> must be of <ContentSourceType.Uri>")
 	self.Content = imageContent
 	self.Image = AssetService:CreateEditableImageAsync(imageContent, self.Size)
+	self:compile()
 	return nil
 end
-
 
 --- Compiles the Texture's Image pixel data into a buffer.u8 and assigns it to the Texture's PixelBuffer
 --- @within Texture
@@ -139,7 +141,7 @@ end
 --- @return buffer
 function Texture:compile(): buffer?
 	if not self.Image then 
-		warn("WARNING [Texture:compile] Cannot compile because Image is not yet initialized") 
+		warn(string.format("WARNING [Texture:compile] Cannot compile because Image under Texture.name = %q is not yet initialized", self.Name)) 
 		return nil 
 	end
 	self.PixelBuffer = self.Image:ReadPixelsBuffer(Vector2.zero, self.Size)

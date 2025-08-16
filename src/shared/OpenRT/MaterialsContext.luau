@@ -20,8 +20,16 @@ MaterialsContext.__index = MaterialsContext
 --- @return MaterialsContext
 function MaterialsContext.new(): MaterialsContextT
 	local newMaterialsContext = {
+		-- Objects
 		Materials = {} :: {[string]: MaterialT},
-		TextureRegistry = {} :: {[string]: EditableImage}
+		TextureRegistry = {} :: {[string]: EditableImage},
+
+		-- Metadata
+		Properties = {
+			diffuseEnabled = true :: boolean,
+			specularEnabled = true :: boolean,
+			normalEnabled = true :: boolean
+		} :: {[string]: (string | number | boolean | Vector3 | Vector2)}
 	}
 	return setmetatable(newMaterialsContext, MaterialsContext)
 end
@@ -57,8 +65,6 @@ function MaterialsContext:addMaterial(MaterialInstance: MaterialT): nil
 	self.Materials[MaterialInstance.Name] = MaterialInstance
 	return nil
 end
-
---- 
 
 --- Removes an existing Material instance from the MaterialsContext instance.
 --- @within MaterialsContext
