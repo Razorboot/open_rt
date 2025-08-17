@@ -13,6 +13,8 @@ local CompiledTypes = require(script.Parent:FindFirstChild("CompiledTypes"))
 --# IMPORT TYPES
 type array<T> = CompiledTypes.array<T>
 
+type MaterialT = ObjectTypes.Material
+
 
 --# IMPORTED CONSTANTS
 local DEFAULT_TEXTURE_SIZE: Vector2 = ObjectTypes.DEFAULT_TEXTURE_SIZE
@@ -60,13 +62,28 @@ Texture.__index = Texture
 --- @return Texture
 function Texture.new(name: string): any
 	local newTexture = {
-		Name = name,
+		_Name = name,
 		Size = DEFAULT_TEXTURE_SIZE :: Vector2,
 		Image = nil :: EditableImage?,
 		Content = nil :: Content?,
 		PixelBuffer = nil :: buffer?
 	}
-	return setmetatable(newTexture, Texture)
+	
+	local mt = {
+		__index = function(self, key)
+			if key == "Name" then
+				return rawget(self, "_Name")
+			end
+			return Texture[key]
+		end,
+		__newindex = function(self, key, value)
+			if key == "Name" then
+				error("ERROR: Material.Name is readonly and cannot be changed after initialization.")
+			end
+			rawset(self, key, value)
+		end
+	}
+	return setmetatable(newTexture, mt)
 end
 
 --- Destroys the current Image and all associated metadata for the Texture
@@ -138,12 +155,42 @@ end
 --- Compiles the Texture's Image pixel data into a buffer.u8 and assigns it to the Texture's PixelBuffer
 --- @within Texture
 --- @tag Setter
---- @return buffer
+--- @return buffer? -- Returns nil if Image is nil
 function Texture:compile(): buffer?
 	if not self.Image then 
-		warn(string.format("WARNING [Texture:compile] Cannot compile because Image under Texture.name = %q is not yet initialized", self.Name)) 
+		warn(string.format("WARNING [Texture:compile] Cannot compile because Image under Texture.Name = %q is not yet initialized", self.Name)) 
 		return nil 
 	end
 	self.PixelBuffer = self.Image:ReadPixelsBuffer(Vector2.zero, self.Size)
 	return self.PixelBuffer
+end
+
+
+--# GETTERS
+
+--- Returns the Name of the Texture
+--- @within Texture
+--- @tag Getter
+--- @return string
+function Texture:getName(): string
+	return self.Name
+end
+
+--- Returns the Size of the Texture
+--- @within Texture
+--- @tag Getter
+--- @return Vector2 -- Returns nil if Size is nil
+function Texture:getSize(): Vector2
+	return self.Size
+end
+
+--- Returns the URI of Content attached to the Texture
+--- @within Texture
+--- @tag Getter
+--- @return string? -- Returns nil if Content is nil
+function Texture:getImageId(): string?
+	if not self.Content then
+		return nil
+	end
+	return self.Content.Uri
 end
