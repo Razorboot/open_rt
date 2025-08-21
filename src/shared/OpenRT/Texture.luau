@@ -13,7 +13,7 @@ local CompiledTypes = require(script.Parent:FindFirstChild("CompiledTypes"))
 --# IMPORT TYPES
 type array<T> = CompiledTypes.array<T>
 
-type MaterialT = ObjectTypes.Material
+type MaterialT = ObjectTypes.MaterialT
 
 
 --# IMPORTED CONSTANTS
@@ -25,14 +25,18 @@ local DEFAULT_TEXTURE_SIZE: Vector2 = ObjectTypes.DEFAULT_TEXTURE_SIZE
 --[=[
 	The Texture class acts as a wrapper around an EditableImage with added metadata used by OpenRT for appearance modification, such as transprency, gamma, tint, and more.
 	Textures are typically used to provide surface information for materials, though they are also used for other purposes, like frame captures.
-	
+	The below properties are used to modify the appearance of the Texture, but they are read only and can be accessed with Setters and Getters (see below).
+
 	Each Material Instance contains...
 
 	The name of the Texture
 	- Name: String
 
-	The size of the Texture, (64, 64) by default. This property is read only when the Texture is parented to a Material.
-	- Size: Vector2
+	The resolution of the Texture, This property is read only when the Texture is parented to a Material.
+	- Size: Vector2 *- default: (64, 64)*
+
+	The scale of the Texture. This gets used for Materials with UV mapping, but is disabled for frame captures.
+	- Scale: number *- default: (1.0)*
 
 	The Material the Texture belongs to:
 	- ParentMaterial: Material
@@ -63,10 +67,12 @@ Texture.__index = Texture
 function Texture.new(name: string): any
 	local newTexture = {
 		_Name = name,
-		Size = DEFAULT_TEXTURE_SIZE :: Vector2,
-		Image = nil :: EditableImage?,
-		Content = nil :: Content?,
-		PixelBuffer = nil :: buffer?
+		_Size = DEFAULT_TEXTURE_SIZE :: Vector2,
+		_Image = nil :: EditableImage?,
+		_Content = nil :: Content?,
+		_PixelBuffer = nil :: buffer?,
+		_Parent = nil :: MaterialT?,
+		_Scale = 1.0 :: number
 	}
 	
 	local mt = {
@@ -83,7 +89,7 @@ function Texture.new(name: string): any
 			rawset(self, key, value)
 		end
 	}
-	return setmetatable(newTexture, mt)
+	return setmetatable(newTexture, ObjectTypes.getPrivateTable("RenderContext", name))
 end
 
 --- Destroys the current Image and all associated metadata for the Texture
@@ -91,11 +97,25 @@ end
 --- @tag Destructor
 --- @return nil
 function Texture:destroy(): nil
-	if self.Image then
-		self.Image:Destroy()
+	if self._Image then
+		self._Image:Destroy()
 	end
 	setmetatable(self, nil)
 	return nil
+end
+
+--- Clones a Texture instance
+--- @within Texture
+--- @tag Cloner
+--- @param name string -- The name to give the cloned Texture
+--- @return Texture
+function Texture:clone(name: string): Texture
+	local TextureClone = Texture.new(name)
+	TextureClone:setSize(self._Size)
+	TextureClone:setScale(self._Scale)
+	TextureClone:setImageId(self._ImageId)
+
+	return TextureClone
 end
 
 
@@ -109,7 +129,8 @@ end
 --- @return nil
 function Texture:setParentContext(Context: any): nil
 	assert(Context, string.format("ERROR [Texture:setParentContext] <Context> is of type <%s> must be a <MaterialsContext>", typeof(Context)))
-	self.ParentContext = Context
+	self._ParentContext = Context
+	self:_updateTextureRegistry()
 	return nil
 end
 
@@ -117,14 +138,27 @@ end
 --- @within Texture
 --- @tag Setter
 --- @method setSize
---- @param size: Vector2 -- The new size of the texture
+--- @param size: Vector2 -- The new size of the Texture
 --- @return nil
 function Texture:setSize(size: Vector2): nil
-	self.Size = size
-	if self.Image then
-		self.Image:Destroy()
+	self._Size = size
+	if self._Image then
+		self._Image:Destroy()
 	end
-	self.Image = AssetService:CreateEditableImageAsync(self.Content, size)
+	self._Image = AssetService:CreateEditableImageAsync(self._Content, size)
+	self:compile()
+	return nil
+end
+
+--- Sets the scale of the Image attached to the Texture for UV mapping during rendering
+--- @within Texture
+--- @tag Setter
+--- @method setScale
+--- @param scale: number -- The new scale of the Texture
+--- @return nil
+function Texture:setScale(scale: number): nil
+	self._Scale = scale
+	self:setSize(self._Size)
 	self:compile()
 	return nil
 end
@@ -146,8 +180,8 @@ end
 --- @return nil
 function Texture:setContent(imageContent: Content): nil
 	assert(imageContent.SourceType == Enum.ContentSourceType.Uri, "ERROR [Texture:setContent] <imageContent> must be of <ContentSourceType.Uri>")
-	self.Content = imageContent
-	self.Image = AssetService:CreateEditableImageAsync(imageContent, self.Size)
+	self._Content = imageContent
+	self._Image = AssetService:CreateEditableImageAsync(imageContent, self._Size)
 	self:compile()
 	return nil
 end
@@ -157,12 +191,12 @@ end
 --- @tag Setter
 --- @return buffer? -- Returns nil if Image is nil
 function Texture:compile(): buffer?
-	if not self.Image then 
-		warn(string.format("WARNING [Texture:compile] Cannot compile because Image under Texture.Name = %q is not yet initialized", self.Name)) 
-		return nil 
+	if not self._Image then
+		warn(string.format("WARNING [Texture:compile] Cannot compile because Image under Texture.Name = %q is not yet initialized", self.Name))
+		return nil
 	end
-	self.PixelBuffer = self.Image:ReadPixelsBuffer(Vector2.zero, self.Size)
-	return self.PixelBuffer
+	self._PixelBuffer = self._Image:ReadPixelsBuffer(Vector2.zero, self._Size)
+	return self._PixelBuffer
 end
 
 
@@ -173,7 +207,7 @@ end
 --- @tag Getter
 --- @return string
 function Texture:getName(): string
-	return self.Name
+	return self._Name
 end
 
 --- Returns the Size of the Texture
@@ -181,7 +215,15 @@ end
 --- @tag Getter
 --- @return Vector2 -- Returns nil if Size is nil
 function Texture:getSize(): Vector2
-	return self.Size
+	return self._Size
+end
+
+--- Returns the Scale of the Texture
+--- @within Texture
+--- @tag Getter
+--- @return number
+function Texture:getScale(): number
+	return self._Scale
 end
 
 --- Returns the URI of Content attached to the Texture
@@ -189,8 +231,8 @@ end
 --- @tag Getter
 --- @return string? -- Returns nil if Content is nil
 function Texture:getImageId(): string?
-	if not self.Content then
+	if not self._Content then
 		return nil
 	end
-	return self.Content.Uri
+	return self._Content.Uri
 end

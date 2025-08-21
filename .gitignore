@@ -11,3 +11,17 @@
 # Documentation files
 /build
 /moonwave.toml
+
+# Docusaurus configuration and generated files
+/docusaurus.config.js
+/sidebars.js
+/static/
+/pages/custom.css
+
+# Node modules and package files (if generated)
+/node_modules/
+/package-lock.json
+/yarn.lock
+
+# Docusaurus generated files
+/.docusaurus/

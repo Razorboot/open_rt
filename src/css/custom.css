@@ -1,0 +1,131 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  
+  /* Custom width variables for wider layout */
+  --doc-sidebar-width: 280px;
+  --docusaurus-content-width: 1400px;
+  --ifm-container-width-xl: 1400px;
+  --ifm-container-width: 1400px;
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* === CUSTOM WIDTH AND IMAGE SIZING === */
+
+/* Force wider containers at multiple levels */
+.main-wrapper,
+.container,
+.container-fluid {
+  max-width: 1400px !important;
+  width: 100% !important;
+}
+
+/* Target the specific Docusaurus content containers */
+div[class*="docMainContainer"],
+div[class*="docItemContainer"] {
+  max-width: none !important;
+}
+
+/* Make the markdown content area much wider */
+.markdown,
+.theme-doc-markdown,
+article {
+  max-width: 1200px !important;
+  margin: 0 auto;
+}
+
+/* Force images to be larger and higher quality */
+.markdown img,
+.theme-doc-markdown img,
+article img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 2rem auto !important;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Specifically target README images */
+img[src*="open_rt_background"],
+img[src*="open_rt_map"] {
+  max-width: 100% !important;
+  width: auto !important;
+  min-width: 600px !important;
+}
+
+/* Override any width restrictions on paragraphs containing images */
+.markdown p:has(img),
+.theme-doc-markdown p:has(img) {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Adjust column layouts for much wider content */
+@media (min-width: 1200px) {
+  .col--7, .col--8 {
+    flex: 0 0 85% !important;
+    max-width: 85% !important;
+  }
+  
+  .col--3, .col--4 {
+    flex: 0 0 15% !important;
+    max-width: 15% !important;
+  }
+  
+  .col.col--8.margin-top--lg {
+    flex: 0 0 90% !important;
+    max-width: 90% !important;
+  }
+}
+
+/* Remove any max-width constraints on content areas */
+.theme-doc-version-badge,
+.theme-doc-breadcrumbs,
+.theme-doc-markdown,
+.markdown {
+  max-width: none !important;
+}
+
+/* Ensure navbar spans full width */
+.navbar {
+  max-width: none !important;
+}
+
+/* Make sure code blocks also benefit */
+.prism-code {
+  max-width: 100% !important;
+}
+
+/* Override Infima's default responsive containers */
+@media (min-width: 1320px) {
+  .container {
+    max-width: 1400px !important;
+  }
+}
